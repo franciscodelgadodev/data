@@ -41,7 +41,6 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('popularVillain');
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
-<<<<<<< HEAD
     env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
       attrs: {
         superVillains: {embedded: 'always'}
@@ -57,8 +56,6 @@ module("integration/active_model - ActiveModelSerializer", {
         superVillains: {embedded: 'always', key: 'superVillainsAttributes'}
       }
     }));
-=======
->>>>>>> de17e0f7150fc8910d5a61385c4dfb68026479d6
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
     env.amsAdapter    = env.container.lookup("adapter:ams");
