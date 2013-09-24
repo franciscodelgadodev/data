@@ -50,9 +50,11 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
         attrs   = get(this, 'attrs'),
         embed   = attrs && attrs[key] && attrs[key].embedded === 'always',
         ids     = attrs && attrs[key] && attrs[key].ids,
+        custom_key = attrs && attrs[key] && attrs[key].key || key,
         strategy, manyKey;
 
-    manyKey = ids ? this.keyForRelationship(key, 'hasMany') : this.keyForAttribute(key);
+    manyKey = ids && custom_key === key ?
+      this.keyForRelationship(key, 'hasMany') : this.keyForAttribute(custom_key);
 
     if (embed) {
       strategy = this.hasManySerializerStrategy(ids);
