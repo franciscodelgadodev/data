@@ -18,4 +18,5 @@ docs/node_modules/
 
 .rvmrc
 *.swp
+*.swo
 *~
