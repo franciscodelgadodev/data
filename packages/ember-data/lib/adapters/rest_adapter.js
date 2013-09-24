@@ -247,7 +247,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findHasMany: function(store, record, url) {
-    return this.ajax(url, 'GET');
+    return this.ajax(this.urlPrefix(url), 'GET');
   },
 
   /**
@@ -280,7 +280,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findBelongsTo: function(store, record, url) {
-    return this.ajax(url, 'GET');
+    return this.ajax(this.urlPrefix(url), 'GET');
   },
 
   /**
@@ -373,6 +373,22 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns String
   */
   buildURL: function(type, id) {
+    var url = [],
+        host = get(this, 'host'),
+        prefix = this.urlPrefix();
+
+    if (type) { url.push(this.pathForType(type)); }
+    if (id) { url.push(id); }
+
+    if (prefix) { url.unshift(prefix); }
+
+    url = url.join('/');
+    if (!host && url) { url = '/' + url; }
+
+    return url;
+  },
+
+  urlPrefix: function(path) {
     var host = get(this, 'host'),
         namespace = get(this, 'namespace'),
         url = [];
@@ -380,13 +396,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (host) { url.push(host); }
     if (namespace) { url.push(namespace); }
 
-    url.push(this.pathForType(type));
-    if (id) { url.push(id); }
+    if (path) {
+      url.push(path);
+    }
 
-    url = url.join('/');
-    if (!host) { url = '/' + url; }
-
-    return url;
+    return url.join('/');
   },
 
   /**
@@ -415,6 +429,24 @@ DS.RESTAdapter = DS.Adapter.extend({
   **/
   pathForType: function(type) {
     return Ember.String.pluralize(type);
+  },
+
+  /**
+    Takes an ajax response, and returns a relavant error.
+
+    By default, it has the following behavior:
+
+    * It simply returns the ajax response.
+
+    @method ajaxError
+    @param  jqXHR
+  */
+  ajaxError: function(jqXHR) {
+    if (jqXHR) {
+      jqXHR.then = null;
+    }
+
+    return jqXHR;
   },
 
   /**
@@ -469,11 +501,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        if (jqXHR) {
-          jqXHR.then = null;
-        }
-
-        Ember.run(null, reject, jqXHR);
+        Ember.run(null, reject, adapter.ajaxError(jqXHR));
       };
 
       Ember.$.ajax(hash);
